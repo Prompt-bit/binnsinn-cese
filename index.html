@@ -47,7 +47,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(to top, rgba(10, 20, 50, 0.8), transparent);
+      background: linear-gradient(to top, rgba(10, 20, 50, 0.9), transparent);
       opacity: 1;
       transition: opacity 0.3s ease;
     }
@@ -114,7 +114,10 @@
   <h1>BinnSinn Cese 🎞️</h1>
 
   <div class="video-wrapper" id="player">
-    <video id="video" src="MetaMan Monaton.mp4" poster="thumbnail.png"></video>
+    <video id="video" poster="thumbnail.png">
+      <source src="MetaMan Monaton.mp4" type="video/mp4" />
+      Your browser does not support HTML5 video.
+    </video>
     <div class="controls" id="controls">
       <button id="playBtn" class="btn">▶</button>
       <div class="progress-container">
@@ -163,7 +166,6 @@
       }
     };
 
-    // Hide/show controls like YouTube
     function showControls() {
       controls.classList.remove('hidden');
       clearTimeout(hideControlsTimeout);
@@ -182,7 +184,6 @@
       }
     });
 
-    // Reset play button when video ends
     video.onended = () => {
       playBtn.textContent = '▶';
       controls.classList.remove('hidden');
