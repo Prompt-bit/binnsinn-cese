@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BinnSinn Cese Theater Mode</title>
+<title>BinnSinn Cese</title>
 <style>
   body {
     margin: 0;
@@ -26,11 +26,10 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     transition: width 0.3s ease, height 0.3s ease;
     width: 300px;
-    height: 169px; /* 16:9 ratio */
+    height: 169px;
     position: relative;
   }
 
-  /* Theater mode */
   .video-container.theater {
     width: 80vw;
     max-width: 900px;
@@ -38,7 +37,6 @@
     max-height: 506px;
   }
 
-  /* Fullscreen */
   .video-container:fullscreen,
   .video-container:-webkit-full-screen {
     width: 100vw !important;
@@ -64,7 +62,6 @@
     transition: opacity 0.3s ease;
   }
 
-  /* Show controls only fullscreen */
   .video-container:fullscreen .controls,
   .video-container:-webkit-full-screen .controls {
     opacity: 1;
@@ -85,7 +82,6 @@
     background: #2563eb;
   }
 
-  /* Artist stats panel — hidden by default */
   .stats {
     max-width: 900px;
     margin: 0 auto 30px;
@@ -97,7 +93,6 @@
     transition: opacity 0.3s ease, height 0.3s ease;
   }
 
-  /* Show stats only in theater mode */
   .show-stats {
     opacity: 1;
     height: auto;
@@ -129,8 +124,19 @@
   const theaterToggleBtn = document.getElementById('theaterToggle');
   const stats = document.getElementById('stats');
 
-  // Play/pause toggle
+  // Play/pause toggle for button
   playPauseBtn.onclick = () => {
+    if (video.paused) {
+      video.play();
+      playPauseBtn.textContent = 'Pause';
+    } else {
+      video.pause();
+      playPauseBtn.textContent = 'Play';
+    }
+  };
+
+  // Play/pause toggle on video tap/click
+  video.onclick = () => {
     if (video.paused) {
       video.play();
       playPauseBtn.textContent = 'Pause';
@@ -151,7 +157,7 @@
     }
   };
 
-  // Theater mode toggle (just toggles a class)
+  // Theater mode toggle
   theaterToggleBtn.onclick = () => {
     player.classList.toggle('theater');
     if (player.classList.contains('theater')) {
@@ -161,7 +167,7 @@
     }
   };
 
-  // Hide stats on fullscreen enter, show on exit
+  // Hide/show stats on fullscreen enter/exit
   document.addEventListener('fullscreenchange', () => {
     const isFs = !!document.fullscreenElement;
     if (isFs) {
@@ -179,7 +185,6 @@
       stats.classList.add('show-stats');
     }
   });
-
 </script>
 
 </body>
