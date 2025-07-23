@@ -3,205 +3,235 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BinnSinn Cese Player</title>
+<title>BinnSinn Cese</title>
 <style>
+  /* Body & Header */
   body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
-    background: #121212;
-    color: #fff;
-    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0b0c10, #1f2833);
+    color: #e0e0e0;
     text-align: center;
-    padding: 20px;
+    user-select: none;
   }
-
   h1 {
-    margin-bottom: 20px;
+    font-size: 2.8rem;
+    margin-top: 40px;
+    text-shadow: 0 0 8px #45a29e;
+    letter-spacing: 0.05em;
   }
 
-  .video-container {
-    margin: 0 auto 12px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: black;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    transition: width 0.3s ease, height 0.3s ease;
-    width: 300px;
-    height: 169px; /* 16:9 ratio */
+  /* Video card wrapper */
+  .video-wrapper {
     position: relative;
+    width: 200px;
+    height: 120px;
+    margin: 40px auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 8px 24px rgba(0, 162, 165, 0.6),
+      inset 0 0 8px #66fcf1;
+    cursor: pointer;
+    background: #000;
   }
 
-  /* Theater mode expands container */
-  .video-container.theater {
-    width: 80vw;
-    max-width: 900px;
-    height: calc(80vw * 9 / 16);
-    max-height: 506px;
-  }
-
-  /* Fullscreen styles */
-  .video-container:fullscreen,
-  .video-container:-webkit-full-screen,
-  .video-container:-moz-full-screen,
-  .video-container:-ms-fullscreen {
-    width: 100vw !important;
-    height: 100vh !important;
-  }
-
-  .video-container video {
+  /* Thumbnail image */
+  .video-wrapper img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    cursor: pointer;
+    object-fit: cover;
+    display: block;
   }
 
-  .controls {
+  /* Play button with pulse */
+  .play-button {
     position: absolute;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
+    top: 50%;
+    left: 50%;
+    width: 52px;
+    height: 52px;
+    background: rgba(69, 162, 158, 0.85);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
-    justify-content: space-between;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #0b0c10;
+    box-shadow: 0 0 12px #45a29e;
+    animation: pulse 2.5s infinite;
+    transition: background 0.3s;
+  }
+  .play-button:hover {
+    background: rgba(69, 162, 158, 1);
   }
 
-  /* Show controls only fullscreen */
-  .video-container:fullscreen .controls,
-  .video-container:-webkit-full-screen .controls,
-  .video-container:-moz-full-screen .controls,
-  .video-container:-ms-fullscreen .controls {
-    opacity: 1;
-    pointer-events: auto;
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 0 12px #45a29e, 0 0 24px #45a29e88;
+    }
+    50% {
+      box-shadow: 0 0 20px #66fcf1, 0 0 30px #66fcf188;
+    }
   }
 
-  .controls button {
-    background: #1e90ff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    color: white;
-    font-size: 1rem;
+  /* Fullscreen overlay */
+  .fullscreen-player {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 12, 16, 0.95);
+    backdrop-filter: blur(14px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    animation: fadeInOverlay 0.3s ease forwards;
+  }
+  .fullscreen-player.show {
+    display: flex;
+  }
+
+  @keyframes fadeInOverlay {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+
+  /* Fullscreen video styling */
+  .fullscreen-player video {
+    width: 90vw;
+    max-width: 960px;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 20px;
+    box-shadow:
+      0 0 30px #45a29e,
+      0 0 60px #66fcf1;
+    background: #000;
+    outline: none;
+  }
+
+  /* Close button */
+  .close-btn {
+    margin-top: 20px;
+    background: transparent;
+    border: 2px solid #45a29e;
+    color: #45a29e;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 30px;
+    padding: 10px 28px;
     cursor: pointer;
+    box-shadow: 0 0 10px #45a29e88;
+    transition: background 0.3s, color 0.3s;
+    user-select: none;
+  }
+  .close-btn:hover {
+    background: #45a29e;
+    color: #0b0c10;
   }
 
-  .controls button:hover {
-    background: #2563eb;
+  /* Loading spinner */
+  .loading-spinner {
+    margin-top: 15px;
+    border: 4px solid #45a29e55;
+    border-top: 4px solid #66fcf1;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    animation: spin 1s linear infinite;
+    display: none;
+  }
+  .loading-spinner.active {
+    display: block;
   }
 
-  /* Artist stats hidden by default */
-  .stats {
-    max-width: 900px;
-    margin: 0 auto 30px;
-    font-size: 1rem;
-    color: #bbb;
-    opacity: 0;
-    height: 0;
-    overflow: hidden;
-    transition: opacity 0.3s ease, height 0.3s ease;
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
-  /* Show stats only in theater mode */
-  .stats.show-stats {
-    opacity: 1;
-    height: auto;
-  }
 </style>
 </head>
 <body>
-
   <h1>BinnSinn Cese</h1>
 
-  <div class="video-container" id="player">
-    <video id="myVideo" src="MetaMan Monaton.mp4" poster="thumbnail.png"></video>
-    <div class="controls">
-      <button id="playPause">Play</button>
-      <button id="fsToggle">Fullscreen</button>
-      <button id="theaterToggle">Theater Mode</button>
-    </div>
+  <div class="video-wrapper" id="movieCard" tabindex="0" role="button" aria-label="Play video">
+    <img src="thumbnail.png" alt="Video thumbnail" />
+    <div class="play-button" aria-hidden="true">▶</div>
   </div>
 
-  <div class="stats" id="stats">
-    🎬 Directed by Prompt | 🎨 Artwork by Prime | 🎞️ BinnSinn Studios | Released 2025
+  <div class="fullscreen-player" id="fullscreenViewer" role="dialog" aria-modal="true" aria-label="Video player fullscreen">
+    <video id="movie" src="MetaMan Monaton.mp4" playsinline muted></video>
+    <button class="close-btn" id="closeBtn" aria-label="Close video player">✕ Close</button>
+    <div class="loading-spinner" id="spinner"></div>
   </div>
 
 <script>
-  const video = document.getElementById('myVideo');
-  const player = document.getElementById('player');
-  const playPauseBtn = document.getElementById('playPause');
-  const fsToggleBtn = document.getElementById('fsToggle');
-  const theaterToggleBtn = document.getElementById('theaterToggle');
-  const stats = document.getElementById('stats');
+  const card = document.getElementById('movieCard');
+  const viewer = document.getElementById('fullscreenViewer');
+  const movie = document.getElementById('movie');
+  const closeBtn = document.getElementById('closeBtn');
+  const spinner = document.getElementById('spinner');
 
-  function togglePlayPause() {
-    if (video.paused) {
-      video.play();
-      playPauseBtn.textContent = 'Pause';
-    } else {
-      video.pause();
-      playPauseBtn.textContent = 'Play';
-    }
+  // Show spinner while loading
+  movie.addEventListener('waiting', () => {
+    spinner.classList.add('active');
+  });
+
+  movie.addEventListener('canplay', () => {
+    spinner.classList.remove('active');
+  });
+
+  function openPlayer() {
+    viewer.classList.add('show');
+    movie.currentTime = 0;
+    movie.play();
+    movie.requestFullscreen?.().catch(() => {});
+    movie.focus();
   }
-  video.onclick = togglePlayPause;
-  playPauseBtn.onclick = togglePlayPause;
 
-  function toggleFullscreen(elem) {
-    if (
-      !document.fullscreenElement &&
-      !document.webkitFullscreenElement &&
-      !document.mozFullScreenElement &&
-      !document.msFullscreenElement
-    ) {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(err => console.error(err));
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
+  function closePlayer() {
+    viewer.classList.remove('show');
+    spinner.classList.remove('active');
+    movie.pause();
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+    card.focus();
+  }
+
+  card.addEventListener('click', openPlayer);
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openPlayer();
+    }
+  });
+
+  closeBtn.addEventListener('click', closePlayer);
+
+  viewer.addEventListener('click', (e) => {
+    // Close only if click outside video and close button
+    if (e.target === viewer) {
+      closePlayer();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closePlayer();
+    }
+  });
+
+  // Handle fullscreen exit to close overlay
+  ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event =>
+    document.addEventListener(event, () => {
+      if (!document.fullscreenElement) {
+        closePlayer();
       }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(err => console.error(err));
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
-      }
-    }
-  }
-
-  fsToggleBtn.onclick = () => toggleFullscreen(player);
-
-  theaterToggleBtn.onclick = () => {
-    player.classList.toggle('theater');
-    if (player.classList.contains('theater')) {
-      stats.classList.add('show-stats');
-    } else {
-      stats.classList.remove('show-stats');
-    }
-  };
-
-  // Show/hide stats on fullscreen change
-  function onFullscreenChange() {
-    const isFullscreen =
-      document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement;
-    if (isFullscreen) {
-      stats.classList.remove('show-stats');
-    } else if (player.classList.contains('theater')) {
-      stats.classList.add('show-stats');
-    }
-  }
-  document.addEventListener('fullscreenchange', onFullscreenChange);
-  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-  document.addEventListener('mozfullscreenchange', onFullscreenChange);
-  document.addEventListener('MSFullscreenChange', onFullscreenChange);
+    })
+  );
 </script>
 
 </body>
