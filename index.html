@@ -1,141 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BinnSinn Cese</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: white;
-      text-align: center;
-      padding: 30px;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BinnSinn Cese Theater Mode</title>
+<style>
+  body {
+    margin: 0;
+    background: #121212;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
+  h1 {
+    margin-bottom: 20px;
+  }
 
-    .video-container {
-      position: relative;
-      width: 300px;
-      margin: 0 auto;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-      background: black;
-      transition: all 0.3s ease;
-    }
+  .video-container {
+    margin: 0 auto 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: black;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    transition: width 0.3s ease, height 0.3s ease;
+    width: 300px;
+    height: 169px; /* 16:9 ratio */
+    position: relative;
+  }
 
-    video {
-      width: 100%;
-      display: block;
-    }
+  /* Theater mode */
+  .video-container.theater {
+    width: 80vw;
+    max-width: 900px;
+    height: calc(80vw * 9 / 16);
+    max-height: 506px;
+  }
 
-    .stats {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #bbb;
-      transition: opacity 0.3s ease;
-    }
+  /* Fullscreen */
+  .video-container:fullscreen,
+  .video-container:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+  }
 
-    .controls {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      right: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
+  .video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+  }
 
-    .controls button {
-      background: #1e90ff;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 6px;
-      color: white;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
+  .controls {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
 
-    .controls button:hover {
-      background: #1c7ed6;
-    }
+  /* Show controls only fullscreen */
+  .video-container:fullscreen .controls,
+  .video-container:-webkit-full-screen .controls {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
-    .fullscreen video:fullscreen + .controls {
-      opacity: 1;
-      pointer-events: auto;
-    }
+  .controls button {
+    background: #1e90ff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+  }
 
-    .fullscreen video:fullscreen ~ .stats {
-      opacity: 0;
-    }
+  .controls button:hover {
+    background: #2563eb;
+  }
 
-    .fullscreen video:-webkit-full-screen + .controls,
-    .fullscreen video:-webkit-full-screen ~ .stats {
-      opacity: 1;
-      pointer-events: auto;
-    }
+  /* Artist stats panel — hidden by default */
+  .stats {
+    max-width: 900px;
+    margin: 0 auto 30px;
+    font-size: 1rem;
+    color: #bbb;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease, height 0.3s ease;
+  }
 
-    /* iPad fix for fullscreen */
-    video:fullscreen,
-    video:-webkit-full-screen {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: contain;
-    }
-  </style>
+  /* Show stats only in theater mode */
+  .show-stats {
+    opacity: 1;
+    height: auto;
+  }
+</style>
 </head>
 <body>
+
   <h1>BinnSinn Cese</h1>
-  <div class="video-container fullscreen">
-    <video id="video" src="MetaMan Monaton.mp4" poster="thumbnail.png"></video>
-    <div class="controls" id="controls">
-      <button id="playPause">▶️ Play</button>
-      <button id="fsToggle">⛶ Fullscreen</button>
+
+  <div class="video-container" id="player">
+    <video id="myVideo" src="MetaMan Monaton.mp4" poster="thumbnail.png"></video>
+    <div class="controls">
+      <button id="playPause">Play</button>
+      <button id="fsToggle">Fullscreen</button>
+      <button id="theaterToggle">Theater Mode</button>
     </div>
-    <div class="stats" id="stats">🎬 Directed by Prompt | 🎨 Artwork by Prime | 🎞️ BinnSinn Studios</div>
   </div>
 
-  <script>
-    const video = document.getElementById('video');
-    const playPause = document.getElementById('playPause');
-    const fsToggle = document.getElementById('fsToggle');
-    const controls = document.getElementById('controls');
+  <div class="stats" id="stats">
+    🎬 Directed by Prompt | 🎨 Artwork by Prime | 🎞️ BinnSinn Studios | Released 2025
+  </div>
 
-    playPause.onclick = () => {
-      if (video.paused) {
-        video.play();
-        playPause.textContent = '⏸️ Pause';
-      } else {
-        video.pause();
-        playPause.textContent = '▶️ Play';
-      }
-    };
+<script>
+  const video = document.getElementById('myVideo');
+  const player = document.getElementById('player');
+  const playPauseBtn = document.getElementById('playPause');
+  const fsToggleBtn = document.getElementById('fsToggle');
+  const theaterToggleBtn = document.getElementById('theaterToggle');
+  const stats = document.getElementById('stats');
 
-    fsToggle.onclick = () => {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (video.requestFullscreen) video.requestFullscreen();
-        else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-      }
-    };
+  // Play/pause toggle
+  playPauseBtn.onclick = () => {
+    if (video.paused) {
+      video.play();
+      playPauseBtn.textContent = 'Pause';
+    } else {
+      video.pause();
+      playPauseBtn.textContent = 'Play';
+    }
+  };
 
-    video.onfullscreenchange = video.onwebkitfullscreenchange = () => {
-      // Show or hide controls when entering/exiting fullscreen
-      const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
-      controls.style.opacity = isFull ? '1' : '0';
-    };
-  </script>
+  // Fullscreen toggle on container
+  fsToggleBtn.onclick = () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (player.requestFullscreen) player.requestFullscreen();
+      else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+  };
+
+  // Theater mode toggle (just toggles a class)
+  theaterToggleBtn.onclick = () => {
+    player.classList.toggle('theater');
+    if (player.classList.contains('theater')) {
+      stats.classList.add('show-stats');
+    } else {
+      stats.classList.remove('show-stats');
+    }
+  };
+
+  // Hide stats on fullscreen enter, show on exit
+  document.addEventListener('fullscreenchange', () => {
+    const isFs = !!document.fullscreenElement;
+    if (isFs) {
+      stats.classList.remove('show-stats');
+    } else if (player.classList.contains('theater')) {
+      stats.classList.add('show-stats');
+    }
+  });
+
+  document.addEventListener('webkitfullscreenchange', () => {
+    const isFs = !!document.webkitFullscreenElement;
+    if (isFs) {
+      stats.classList.remove('show-stats');
+    } else if (player.classList.contains('theater')) {
+      stats.classList.add('show-stats');
+    }
+  });
+
+</script>
+
 </body>
 </html>
