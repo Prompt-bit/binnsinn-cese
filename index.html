@@ -1,149 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BinnSinn Cese 🎥</title>
-<style>
-  * { box-sizing: border-box; margin:0; padding:0; }
-  body { background: #0b0f19; color:#fff; font-family: sans-serif;
-    display: flex; flex-direction: column; align-items: center; padding:20px; }
-  h1 { font-size:2rem; margin-bottom:20px; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BinnSinn Cese</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
 
-  .video-wrapper {
-    position: relative; max-width:720px; width:100%;
-    border-radius:8px; overflow:hidden; background:#000;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.7);
-  }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
 
-  video {
-    width:100%; display:block;
-  }
+    .video-container {
+      position: relative;
+      width: 300px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      background: black;
+      transition: all 0.3s ease;
+    }
 
-  .controls {
-    position:absolute; bottom:0; left:0; right:0;
-    display:flex; align-items:center; padding:10px;
-    gap:10px;
-    background:linear-gradient(to top, rgba(10,20,50,0.8), transparent);
-    transition:opacity 0.3s ease;
-  }
-  .controls.hidden { opacity:0; pointer-events:none; }
+    video {
+      width: 100%;
+      display: block;
+    }
 
-  .btn {
-    background:#1e3a8a; color:#fff;
-    border:none; border-radius:4px; padding:6px 10px;
-    font-size:16px; cursor:pointer;
-    transition:background 0.2s;
-  }
-  .btn:hover { background:#2563eb; }
+    .stats {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #bbb;
+      transition: opacity 0.3s ease;
+    }
 
-  .progress {
-    flex:1; height:6px; background:#3b82f6; border-radius:3px;
-    appearance:none; cursor:pointer;
-  }
-  .progress::-webkit-slider-thumb {
-    width:12px; height:12px; border-radius:50%; background:#fff;
-    border:2px solid #3b82f6; appearance:none; cursor:pointer;
-    margin-top:-3px;
-  }
+    .controls {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
 
-  .stats-panel {
-    width:100%; max-width:720px;
-    background:#14202a; padding:16px; border-radius:8px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.5);
-    margin-top:20px;
-    transition:opacity 0.3s ease;
-  }
-  .stats-hidden { opacity:0; display:none; }
+    .controls button {
+      background: #1e90ff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
 
-  .stats-panel h2 { margin-bottom:8px; font-size:1.5rem; }
-  .stats-panel p { margin-bottom:4px; font-size:1rem; line-height:1.4; }
-</style>
+    .controls button:hover {
+      background: #1c7ed6;
+    }
+
+    .fullscreen video:fullscreen + .controls {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .fullscreen video:fullscreen ~ .stats {
+      opacity: 0;
+    }
+
+    .fullscreen video:-webkit-full-screen + .controls,
+    .fullscreen video:-webkit-full-screen ~ .stats {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* iPad fix for fullscreen */
+    video:fullscreen,
+    video:-webkit-full-screen {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain;
+    }
+  </style>
 </head>
 <body>
-
-  <h1>BinnSinn Cese 🎞️</h1>
-  <div class="video-wrapper" id="player">
-    <video id="video" poster="thumbnail.png">
-      <source src="MetaMan Monaton.mp4" type="video/mp4" />
-      Your browser doesn't support HTML5 video.
-    </video>
+  <h1>BinnSinn Cese</h1>
+  <div class="video-container fullscreen">
+    <video id="video" src="MetaMan Monaton.mp4" poster="thumbnail.png"></video>
     <div class="controls" id="controls">
-      <button id="playBtn" class="btn">▶</button>
-      <input type="range" id="progress" class="progress" value="0">
-      <button id="fullscreenBtn" class="btn">⛶</button>
+      <button id="playPause">▶️ Play</button>
+      <button id="fsToggle">⛶ Fullscreen</button>
     </div>
+    <div class="stats" id="stats">🎬 Directed by Prompt | 🎨 Artwork by Prime | 🎞️ BinnSinn Studios</div>
   </div>
 
-  <div class="stats-panel" id="statsPanel">
-    <h2>MetaMan Monaton</h2>
-    <p><strong>Director:</strong> Jane Doe</p>
-    <p><strong>Producer:</strong> John Smith</p>
-    <p><strong>Studio:</strong> BinnSinn Studios</p>
-    <p><strong>Release Year:</strong> 2025</p>
-    <p><strong>Runtime:</strong> 3m 45s</p>
-  </div>
+  <script>
+    const video = document.getElementById('video');
+    const playPause = document.getElementById('playPause');
+    const fsToggle = document.getElementById('fsToggle');
+    const controls = document.getElementById('controls');
 
-<script>
-  const video = document.getElementById('video'),
-        playBtn = document.getElementById('playBtn'),
-        fullscreenBtn = document.getElementById('fullscreenBtn'),
-        progress = document.getElementById('progress'),
-        controls = document.getElementById('controls'),
-        player = document.getElementById('player'),
-        statsPanel = document.getElementById('statsPanel');
+    playPause.onclick = () => {
+      if (video.paused) {
+        video.play();
+        playPause.textContent = '⏸️ Pause';
+      } else {
+        video.pause();
+        playPause.textContent = '▶️ Play';
+      }
+    };
 
-  let hideControlsTimeout;
+    fsToggle.onclick = () => {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (video.requestFullscreen) video.requestFullscreen();
+        else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    };
 
-  function togglePlay() {
-    if (video.paused) {
-      video.play(); playBtn.textContent='⏸';
-    } else {
-      video.pause(); playBtn.textContent='▶';
-    }
-  }
-
-  playBtn.onclick = togglePlay;
-  video.onclick = togglePlay;
-
-  video.ontimeupdate = () => {
-    progress.value = (video.currentTime / video.duration)*100;
-  };
-  progress.oninput = () => {
-    video.currentTime = (progress.value/100)*video.duration;
-  };
-
-  fullscreenBtn.onclick = () => {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else player.requestFullscreen();
-  };
-
-  function showControls() {
-    controls.classList.remove('hidden');
-    clearTimeout(hideControlsTimeout);
-    hideControlsTimeout = setTimeout(()=>{
-      if (!video.paused) controls.classList.add('hidden');
-    },3000);
-  }
-
-  video.onplay = showControls;
-  player.onmousemove = showControls;
-  video.onpause = ()=>controls.classList.remove('hidden');
-
-  document.addEventListener('fullscreenchange', ()=>{
-    if (document.fullscreenElement) {
-      statsPanel.classList.add('stats-hidden');
-    } else {
-      controls.classList.remove('hidden');
-      statsPanel.classList.remove('stats-hidden');
-    }
-  });
-
-  video.onended = ()=>{
-    playBtn.textContent='▶';
-    statsPanel.classList.remove('stats-hidden');
-  };
-</script>
-
+    video.onfullscreenchange = video.onwebkitfullscreenchange = () => {
+      // Show or hide controls when entering/exiting fullscreen
+      const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      controls.style.opacity = isFull ? '1' : '0';
+    };
+  </script>
 </body>
 </html>
