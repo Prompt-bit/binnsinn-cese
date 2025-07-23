@@ -40,7 +40,9 @@
 
   /* Fullscreen styles */
   .video-container:fullscreen,
-  .video-container:-webkit-full-screen {
+  .video-container:-webkit-full-screen,
+  .video-container:-moz-full-screen,
+  .video-container:-ms-fullscreen {
     width: 100vw !important;
     height: 100vh !important;
   }
@@ -66,7 +68,9 @@
 
   /* Show controls only fullscreen */
   .video-container:fullscreen .controls,
-  .video-container:-webkit-full-screen .controls {
+  .video-container:-webkit-full-screen .controls,
+  .video-container:-moz-full-screen .controls,
+  .video-container:-ms-fullscreen .controls {
     opacity: 1;
     pointer-events: auto;
   }
@@ -129,7 +133,6 @@
   const theaterToggleBtn = document.getElementById('theaterToggle');
   const stats = document.getElementById('stats');
 
-  // Toggle play/pause on video tap or button
   function togglePlayPause() {
     if (video.paused) {
       video.play();
@@ -142,18 +145,37 @@
   video.onclick = togglePlayPause;
   playPauseBtn.onclick = togglePlayPause;
 
-  // Fullscreen toggle on container
-  fsToggleBtn.onclick = () => {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      if (player.requestFullscreen) player.requestFullscreen();
-      else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+  function toggleFullscreen(elem) {
+    if (
+      !document.fullscreenElement &&
+      !document.webkitFullscreenElement &&
+      !document.mozFullScreenElement &&
+      !document.msFullscreenElement
+    ) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => console.error(err));
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
     } else {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(err => console.error(err));
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
     }
-  };
+  }
 
-  // Theater mode toggle: toggle class and stats visibility
+  fsToggleBtn.onclick = () => toggleFullscreen(player);
+
   theaterToggleBtn.onclick = () => {
     player.classList.toggle('theater');
     if (player.classList.contains('theater')) {
@@ -163,23 +185,23 @@
     }
   };
 
-  // Hide/show stats on fullscreen enter/exit
-  document.addEventListener('fullscreenchange', () => {
-    const isFullscreen = !!document.fullscreenElement;
+  // Show/hide stats on fullscreen change
+  function onFullscreenChange() {
+    const isFullscreen =
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement;
     if (isFullscreen) {
       stats.classList.remove('show-stats');
     } else if (player.classList.contains('theater')) {
       stats.classList.add('show-stats');
     }
-  });
-  document.addEventListener('webkitfullscreenchange', () => {
-    const isFullscreen = !!document.webkitFullscreenElement;
-    if (isFullscreen) {
-      stats.classList.remove('show-stats');
-    } else if (player.classList.contains('theater')) {
-      stats.classList.add('show-stats');
-    }
-  });
+  }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+  document.addEventListener('mozfullscreenchange', onFullscreenChange);
+  document.addEventListener('MSFullscreenChange', onFullscreenChange);
 </script>
 
 </body>
